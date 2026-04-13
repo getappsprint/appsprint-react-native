@@ -30,7 +30,7 @@
     "prepack": "npm run validate:release"
   },
   "keywords": ["react-native", "attribution", "mobile", "analytics", "appsprint"],
-  "repository": "https://github.com/app-sprint/appsprint-react-native",
+  "repository": "https://github.com/getappsprint/appsprint-react-native",
   "author": "AppSprint",
   "license": "MIT",
   "homepage": "https://appsprint.app",
