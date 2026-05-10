@@ -52,7 +52,7 @@ class AppSprintBridge: NSObject {
       }
 
       await AppSprint.shared.configure(sdkConfig)
-      resolve(nil)
+      resolve(true)
     }
   }
 
@@ -80,7 +80,7 @@ class AppSprintBridge: NSObject {
       }
 
       await AppSprint.shared.sendEvent(type, name: name, params: params)
-      resolve(nil)
+      resolve(true)
     }
   }
 
@@ -120,8 +120,7 @@ class AppSprintBridge: NSObject {
   @objc func enableAppleAdsAttribution(_ resolve: @escaping RCTPromiseResolveBlock,
                                         rejecter reject: @escaping RCTPromiseRejectBlock) {
     Task { @MainActor in
-      AppSprint.shared.enableAppleAdsAttribution()
-      resolve(nil)
+      resolve(AppSprint.shared.enableAppleAdsAttribution())
     }
   }
 
@@ -140,15 +139,14 @@ class AppSprintBridge: NSObject {
         resolve(NSNull())
         return
       }
-      var dict: [String: Any] = [
-        "source": attr.source,
-        "confidence": attr.confidence,
-      ]
-      if let campaignName = attr.campaignName { dict["campaignName"] = campaignName }
-      if let utmSource = attr.utmSource { dict["utmSource"] = utmSource }
-      if let utmMedium = attr.utmMedium { dict["utmMedium"] = utmMedium }
-      if let utmCampaign = attr.utmCampaign { dict["utmCampaign"] = utmCampaign }
-      resolve(dict)
+      resolve(Self.attributionToDictionary(attr))
+    }
+  }
+
+  @objc func getAttributionParams(_ resolve: @escaping RCTPromiseResolveBlock,
+                                  rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(AppSprint.shared.getAttributionParams())
     }
   }
 
@@ -206,5 +204,32 @@ class AppSprintBridge: NSObject {
       let authorized = await AppSprintNative.requestTrackingAuthorization()
       resolve(authorized)
     }
+  }
+
+  private static func attributionToDictionary(_ attr: AttributionResult) -> [String: Any] {
+    var dict: [String: Any] = [
+      "isAttributed": attr.isAttributed,
+      "source": attr.source,
+      "confidence": attr.confidence,
+    ]
+    if let matchType = attr.matchType { dict["matchType"] = matchType }
+    if let campaignName = attr.campaignName { dict["campaignName"] = campaignName }
+    if let link = attr.link {
+      dict["link"] = ["id": link.id, "name": link.name]
+    }
+    if let appleAds = attr.appleAds {
+      var apple: [String: Any] = ["campaignId": appleAds.campaignId]
+      if let adGroupId = appleAds.adGroupId { apple["adGroupId"] = adGroupId }
+      if let keywordId = appleAds.keywordId { apple["keywordId"] = keywordId }
+      if let country = appleAds.countryOrRegion { apple["countryOrRegion"] = country }
+      if let conversion = appleAds.conversionType { apple["conversionType"] = conversion }
+      dict["appleAds"] = apple
+    }
+    if let utmSource = attr.utmSource { dict["utmSource"] = utmSource }
+    if let utmMedium = attr.utmMedium { dict["utmMedium"] = utmMedium }
+    if let utmCampaign = attr.utmCampaign { dict["utmCampaign"] = utmCampaign }
+    if let utmContent = attr.utmContent { dict["utmContent"] = utmContent }
+    if let utmTerm = attr.utmTerm { dict["utmTerm"] = utmTerm }
+    return dict
   }
 }

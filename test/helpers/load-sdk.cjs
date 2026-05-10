@@ -13,9 +13,11 @@ function createSdkTestContext(options = {}) {
   const nativeModule = {
     async configure(config) {
       calls.push({ method: "configure", args: [config] });
+      return resolvedValues.configure ?? true;
     },
     async sendEvent(eventType, name, revenue, currency, parameters) {
       calls.push({ method: "sendEvent", args: [eventType, name, revenue, currency, parameters] });
+      return resolvedValues.sendEvent ?? true;
     },
     async sendTestEvent() {
       calls.push({ method: "sendTestEvent", args: [] });
@@ -32,6 +34,7 @@ function createSdkTestContext(options = {}) {
     },
     async enableAppleAdsAttribution() {
       calls.push({ method: "enableAppleAdsAttribution", args: [] });
+      return resolvedValues.enableAppleAdsAttribution ?? true;
     },
     async getAppSprintId() {
       calls.push({ method: "getAppSprintId", args: [] });
@@ -40,6 +43,10 @@ function createSdkTestContext(options = {}) {
     async getAttribution() {
       calls.push({ method: "getAttribution", args: [] });
       return resolvedValues.getAttribution ?? null;
+    },
+    async getAttributionParams() {
+      calls.push({ method: "getAttributionParams", args: [] });
+      return resolvedValues.getAttributionParams ?? {};
     },
     async isInitialized() {
       calls.push({ method: "isInitialized", args: [] });

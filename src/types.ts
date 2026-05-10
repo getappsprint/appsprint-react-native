@@ -11,29 +11,50 @@ export type LogLevel = 0 | 1 | 2 | 3;
 
 export type EventType =
   | "session_start"
+  | "SESSION_START"
   | "login"
+  | "LOGIN"
   | "sign_up"
+  | "SIGN_UP"
   | "register"
+  | "REGISTER"
   | "purchase"
+  | "PURCHASE"
   | "subscribe"
+  | "SUBSCRIBE"
   | "start_trial"
+  | "START_TRIAL"
   | "add_to_cart"
+  | "ADD_TO_CART"
   | "add_to_wishlist"
+  | "ADD_TO_WISHLIST"
   | "initiate_checkout"
+  | "INITIATE_CHECKOUT"
   | "view_content"
+  | "VIEW_CONTENT"
   | "view_item"
+  | "VIEW_ITEM"
   | "search"
+  | "SEARCH"
   | "share"
+  | "SHARE"
   | "tutorial_complete"
+  | "TUTORIAL_COMPLETE"
   | "level_start"
+  | "LEVEL_START"
   | "level_complete"
-  | "custom";
+  | "LEVEL_COMPLETE"
+  | "custom"
+  | "CUSTOM";
 
 export interface EventParams {
   revenue?: number;
+  price?: number | string;
   currency?: string;
   [key: string]: unknown;
 }
+
+export type AttributionParams = Record<string, string>;
 
 export interface AttributionLink {
   id: string;
@@ -66,6 +87,7 @@ export interface AttributionResult {
 export interface InstallResponse {
   appsprintId: string;
   attribution: AttributionResult;
+  attributionParams?: AttributionParams;
 }
 
 export interface TestEventResult {
@@ -90,21 +112,22 @@ export interface DeviceInfo {
 
 export interface NativeAppSprintModule {
   // Core SDK (delegates to precompiled binary)
-  configure(config: Record<string, unknown>): Promise<void>;
+  configure(config: Record<string, unknown>): Promise<boolean>;
   sendEvent(
     eventType: string,
     name: string | null,
     revenue: number | null,
     currency: string | null,
     parameters: Record<string, unknown> | null
-  ): Promise<void>;
+  ): Promise<boolean>;
   sendTestEvent(): Promise<TestEventResult>;
   flush(): Promise<void>;
   clearData(): Promise<void>;
   setCustomerUserId(userId: string): Promise<void>;
-  enableAppleAdsAttribution(): Promise<void>;
+  enableAppleAdsAttribution(): Promise<boolean>;
   getAppSprintId(): Promise<string | null>;
   getAttribution(): Promise<AttributionResult | null>;
+  getAttributionParams(): Promise<AttributionParams>;
   isInitialized(): Promise<boolean>;
   isSdkDisabled(): Promise<boolean>;
   destroy(): Promise<void>;

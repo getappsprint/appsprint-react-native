@@ -6,20 +6,29 @@ const LINKING_ERROR =
   "Make sure you have run 'pod install' and rebuilt the app.";
 
 const unsupportedPlatformModule: NativeAppSprintModule = {
-  async configure() {},
-  async sendEvent() {},
+  async configure() {
+    return false;
+  },
+  async sendEvent() {
+    return false;
+  },
   async sendTestEvent() {
     return { success: false, message: "Unsupported platform" };
   },
   async flush() {},
   async clearData() {},
   async setCustomerUserId() {},
-  async enableAppleAdsAttribution() {},
+  async enableAppleAdsAttribution() {
+    return false;
+  },
   async getAppSprintId() {
     return null;
   },
   async getAttribution() {
     return null;
+  },
+  async getAttributionParams() {
+    return {};
   },
   async isInitialized() {
     return false;

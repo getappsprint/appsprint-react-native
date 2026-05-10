@@ -19,6 +19,7 @@ test("exports the documented public API", async () => {
     assert.equal(typeof ctx.sdk.AppSprint.setCustomerUserId, "function");
     assert.equal(typeof ctx.sdk.AppSprint.getAppSprintId, "function");
     assert.equal(typeof ctx.sdk.AppSprint.getAttribution, "function");
+    assert.equal(typeof ctx.sdk.AppSprint.getAttributionParams, "function");
     assert.equal(typeof ctx.sdk.AppSprint.isInitialized, "function");
     assert.equal(typeof ctx.sdk.AppSprint.isSdkDisabled, "function");
     assert.equal(typeof ctx.sdk.AppSprint.destroy, "function");
@@ -36,10 +37,11 @@ test("configure delegates to native module", async () => {
   const ctx = createSdkTestContext();
 
   try {
-    await ctx.sdk.AppSprint.configure({ apiKey: "test-key", isDebug: true });
+    const configured = await ctx.sdk.AppSprint.configure({ apiKey: "test-key", isDebug: true });
 
     const configCall = ctx.calls.find((c) => c.method === "configure");
     assert.ok(configCall, "configure was called on native module");
+    assert.equal(configured, true);
     assert.equal(configCall.args[0].apiKey, "test-key");
     assert.equal(configCall.args[0].isDebug, true);
   } finally {
@@ -51,7 +53,7 @@ test("sendEvent delegates with correct parameters", async () => {
   const ctx = createSdkTestContext();
 
   try {
-    await ctx.sdk.AppSprint.sendEvent("purchase", "test_purchase", {
+    const sent = await ctx.sdk.AppSprint.sendEvent("PURCHASE", "test_purchase", {
       revenue: 4.99,
       currency: "USD",
       source: "test",
@@ -60,6 +62,7 @@ test("sendEvent delegates with correct parameters", async () => {
     const sendCall = ctx.calls.find((c) => c.method === "sendEvent");
     assert.ok(sendCall, "sendEvent was called on native module");
     assert.equal(sendCall.args[0], "purchase");
+    assert.equal(sent, true);
     assert.equal(sendCall.args[1], "test_purchase");
     assert.equal(sendCall.args[2], 4.99);
     assert.equal(sendCall.args[3], "USD");
@@ -68,6 +71,24 @@ test("sendEvent delegates with correct parameters", async () => {
       currency: "USD",
       source: "test",
     });
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("sendEvent accepts price as revenue fallback", async () => {
+  const ctx = createSdkTestContext();
+
+  try {
+    await ctx.sdk.AppSprint.sendEvent("purchase", "checkout", {
+      price: "5.50",
+      currency: "EUR",
+    });
+
+    const sendCall = ctx.calls.find((c) => c.method === "sendEvent");
+    assert.ok(sendCall);
+    assert.equal(sendCall.args[2], 5.5);
+    assert.deepEqual(sendCall.args[4], { price: "5.50", currency: "EUR" });
   } finally {
     ctx.restore();
   }
@@ -119,6 +140,24 @@ test("getAttribution returns value from native module", async () => {
   try {
     const result = await ctx.sdk.AppSprint.getAttribution();
     assert.deepEqual(result, attr);
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("getAttributionParams returns partner payload from native module", async () => {
+  const params = {
+    appsprintId: "app_123",
+    appstackId: "app_123",
+    gclid: "gclid_123",
+  };
+  const ctx = createSdkTestContext({
+    resolvedValues: { getAttributionParams: params },
+  });
+
+  try {
+    const result = await ctx.sdk.AppSprint.getAttributionParams();
+    assert.deepEqual(result, params);
   } finally {
     ctx.restore();
   }
@@ -213,6 +252,7 @@ test("unsupported platforms return the documented safe fallback behavior", async
     assert.equal(await ctx.sdk.NativeAppSprint.getAdServicesToken(), null);
     assert.equal(await ctx.sdk.NativeAppSprint.requestTrackingAuthorization(), false);
     assert.deepEqual(await ctx.sdk.NativeAppSprint.getDeviceInfo(), {});
+    assert.deepEqual(await ctx.sdk.AppSprint.getAttributionParams(), {});
     await ctx.sdk.AppSprint.destroy();
   } finally {
     ctx.restore();

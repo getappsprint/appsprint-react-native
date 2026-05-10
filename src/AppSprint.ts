@@ -1,30 +1,45 @@
 import { NativeAppSprint } from "./NativeAppSprint";
 import type {
   AppSprintConfig,
+  AttributionParams,
   AttributionResult,
   EventParams,
   EventType,
   TestEventResult,
 } from "./types";
 
+function normalizeEventType(eventType: EventType | string): string {
+  return eventType.toLowerCase().replace(/-/g, "_");
+}
+
+function revenueValue(params?: EventParams): number | null {
+  const value = params?.revenue ?? params?.price;
+  if (typeof value === "number") return value;
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
 class AppSprintSDK {
-  async configure(config: AppSprintConfig): Promise<void> {
+  async configure(config: AppSprintConfig): Promise<boolean> {
     if (typeof config.apiKey !== "string" || config.apiKey.trim().length === 0) {
       throw new Error("AppSprint.configure requires a non-empty apiKey.");
     }
 
-    await NativeAppSprint.configure(config as unknown as Record<string, unknown>);
+    return NativeAppSprint.configure(config as unknown as Record<string, unknown>);
   }
 
   async sendEvent(
-    eventType: EventType,
+    eventType: EventType | string,
     name?: string | null,
     params?: EventParams
-  ): Promise<void> {
-    await NativeAppSprint.sendEvent(
-      eventType,
+  ): Promise<boolean> {
+    return NativeAppSprint.sendEvent(
+      normalizeEventType(eventType),
       name ?? null,
-      params?.revenue ?? null,
+      revenueValue(params),
       params?.currency ?? null,
       params ?? null
     );
@@ -46,8 +61,8 @@ class AppSprintSDK {
     await NativeAppSprint.setCustomerUserId(userId);
   }
 
-  async enableAppleAdsAttribution(): Promise<void> {
-    await NativeAppSprint.enableAppleAdsAttribution();
+  async enableAppleAdsAttribution(): Promise<boolean> {
+    return NativeAppSprint.enableAppleAdsAttribution();
   }
 
   async getAppSprintId(): Promise<string | null> {
@@ -56,6 +71,10 @@ class AppSprintSDK {
 
   async getAttribution(): Promise<AttributionResult | null> {
     return NativeAppSprint.getAttribution();
+  }
+
+  async getAttributionParams(): Promise<AttributionParams> {
+    return NativeAppSprint.getAttributionParams();
   }
 
   async isInitialized(): Promise<boolean> {

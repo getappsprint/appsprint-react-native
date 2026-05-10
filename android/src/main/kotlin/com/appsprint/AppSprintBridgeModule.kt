@@ -3,6 +3,7 @@ package com.appsprint
 import com.appsprint.sdk.AppSprint
 import com.appsprint.sdk.AppSprintConfig
 import com.appsprint.sdk.AppSprintEventType
+import com.appsprint.sdk.AttributionResult
 import com.facebook.react.bridge.*
 import kotlin.concurrent.thread
 
@@ -53,7 +54,7 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
                 customerUserId = if (config.hasKey("customerUserId")) config.getString("customerUserId") else null,
             )
             sdk().configure(sdkConfig)
-            promise.resolve(null)
+            promise.resolve(true)
         }
     }
 
@@ -66,7 +67,7 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
             if (revenue != null && revenue != 0.0) params["revenue"] = revenue
             if (currency != null) params["currency"] = currency
             sdk().sendEvent(type, name, if (params.isNotEmpty()) params else null)
-            promise.resolve(null)
+            promise.resolve(true)
         }
     }
 
@@ -107,8 +108,9 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
 
     @ReactMethod
     fun enableAppleAdsAttribution(promise: Promise) {
-        sdk().enableAppleAdsAttribution()
-        promise.resolve(null)
+        runAsync("APPLE_ADS_ERROR", promise) {
+            promise.resolve(sdk().enableAppleAdsAttribution())
+        }
     }
 
     @ReactMethod
@@ -123,14 +125,44 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
             promise.resolve(null)
             return
         }
+        promise.resolve(attributionToMap(attr))
+    }
+
+    @ReactMethod
+    fun getAttributionParams(promise: Promise) {
         val map = Arguments.createMap()
+        sdk().getAttributionParams().forEach { (key, value) -> map.putString(key, value) }
+        promise.resolve(map)
+    }
+
+    private fun attributionToMap(attr: AttributionResult): WritableMap {
+        val map = Arguments.createMap()
+        map.putBoolean("isAttributed", attr.isAttributed)
         map.putString("source", attr.source)
         map.putDouble("confidence", attr.confidence)
+        attr.matchType?.let { map.putString("matchType", it) }
         attr.campaignName?.let { map.putString("campaignName", it) }
+        attr.link?.let {
+            val link = Arguments.createMap()
+            link.putString("id", it.id)
+            link.putString("name", it.name)
+            map.putMap("link", link)
+        }
+        attr.appleAds?.let {
+            val appleAds = Arguments.createMap()
+            appleAds.putString("campaignId", it.campaignId)
+            it.adGroupId?.let { value -> appleAds.putString("adGroupId", value) }
+            it.keywordId?.let { value -> appleAds.putString("keywordId", value) }
+            it.countryOrRegion?.let { value -> appleAds.putString("countryOrRegion", value) }
+            it.conversionType?.let { value -> appleAds.putString("conversionType", value) }
+            map.putMap("appleAds", appleAds)
+        }
         attr.utmSource?.let { map.putString("utmSource", it) }
         attr.utmMedium?.let { map.putString("utmMedium", it) }
         attr.utmCampaign?.let { map.putString("utmCampaign", it) }
-        promise.resolve(map)
+        attr.utmContent?.let { map.putString("utmContent", it) }
+        attr.utmTerm?.let { map.putString("utmTerm", it) }
+        return map
     }
 
     @ReactMethod

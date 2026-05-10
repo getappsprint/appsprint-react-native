@@ -37,6 +37,9 @@ RCT_EXTERN_METHOD(getAppSprintId:(RCTPromiseResolveBlock)resolve
 RCT_EXTERN_METHOD(getAttribution:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getAttributionParams:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(isInitialized:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
