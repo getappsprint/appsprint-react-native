@@ -24,6 +24,8 @@ class AppSprintBridge: NSObject {
       let isDebug = config["isDebug"] as? Bool ?? false
       let logLevelRaw = config["logLevel"] as? Int
       let customerUserId = config["customerUserId"] as? String
+      let autoTrackSessions = config["autoTrackSessions"] as? Bool ?? true
+      let autoRefreshAttribution = config["autoRefreshAttribution"] as? Bool ?? true
 
       let logLevel: AppSprintLogLevel
       if let raw = logLevelRaw, let level = AppSprintLogLevel(rawValue: raw) {
@@ -37,7 +39,9 @@ class AppSprintBridge: NSObject {
         enableAppleAdsAttribution: enableAppleAds,
         isDebug: isDebug,
         logLevel: logLevel,
-        customerUserId: customerUserId
+        customerUserId: customerUserId,
+        autoTrackSessions: autoTrackSessions,
+        autoRefreshAttribution: autoRefreshAttribution
       )
 
       if let urlString = apiUrl, let url = URL(string: urlString) {
@@ -47,7 +51,9 @@ class AppSprintBridge: NSObject {
           enableAppleAdsAttribution: enableAppleAds,
           isDebug: isDebug,
           logLevel: logLevel,
-          customerUserId: customerUserId
+          customerUserId: customerUserId,
+          autoTrackSessions: autoTrackSessions,
+          autoRefreshAttribution: autoRefreshAttribution
         )
       }
 
@@ -114,6 +120,17 @@ class AppSprintBridge: NSObject {
     Task { @MainActor in
       await AppSprint.shared.setCustomerUserId(userId)
       resolve(nil)
+    }
+  }
+
+  @objc func refreshAttribution(_ resolve: @escaping RCTPromiseResolveBlock,
+                                 rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      guard let attr = await AppSprint.shared.refreshAttribution() else {
+        resolve(NSNull())
+        return
+      }
+      resolve(Self.attributionToDictionary(attr))
     }
   }
 

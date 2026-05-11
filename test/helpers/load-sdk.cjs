@@ -32,6 +32,10 @@ function createSdkTestContext(options = {}) {
     async setCustomerUserId(userId) {
       calls.push({ method: "setCustomerUserId", args: [userId] });
     },
+    async refreshAttribution() {
+      calls.push({ method: "refreshAttribution", args: [] });
+      return resolvedValues.refreshAttribution ?? null;
+    },
     async enableAppleAdsAttribution() {
       calls.push({ method: "enableAppleAdsAttribution", args: [] });
       return resolvedValues.enableAppleAdsAttribution ?? true;

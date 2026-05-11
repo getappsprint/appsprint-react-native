@@ -1,6 +1,6 @@
 {
   "name": "appsprint-react-native",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "AppSprint mobile attribution SDK for React Native",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",

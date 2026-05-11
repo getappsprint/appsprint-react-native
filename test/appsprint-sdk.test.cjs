@@ -17,6 +17,7 @@ test("exports the documented public API", async () => {
     assert.equal(typeof ctx.sdk.AppSprint.flush, "function");
     assert.equal(typeof ctx.sdk.AppSprint.clearData, "function");
     assert.equal(typeof ctx.sdk.AppSprint.setCustomerUserId, "function");
+    assert.equal(typeof ctx.sdk.AppSprint.refreshAttribution, "function");
     assert.equal(typeof ctx.sdk.AppSprint.getAppSprintId, "function");
     assert.equal(typeof ctx.sdk.AppSprint.getAttribution, "function");
     assert.equal(typeof ctx.sdk.AppSprint.getAttributionParams, "function");
@@ -44,6 +45,8 @@ test("configure delegates to native module", async () => {
     assert.equal(configured, true);
     assert.equal(configCall.args[0].apiKey, "test-key");
     assert.equal(configCall.args[0].isDebug, true);
+    assert.equal(configCall.args[0].autoTrackSessions, undefined);
+    assert.equal(configCall.args[0].autoRefreshAttribution, undefined);
   } finally {
     ctx.restore();
   }
@@ -56,6 +59,8 @@ test("configure accepts Appstack-style apiKey and options", async () => {
     const configured = await ctx.sdk.AppSprint.configure("test-key", {
       endpointBaseUrl: "https://edge.example.com",
       isDebug: true,
+      autoTrackSessions: false,
+      autoRefreshAttribution: false,
     });
 
     const configCall = ctx.calls.find((c) => c.method === "configure");
@@ -64,6 +69,8 @@ test("configure accepts Appstack-style apiKey and options", async () => {
     assert.equal(configCall.args[0].apiKey, "test-key");
     assert.equal(configCall.args[0].apiUrl, "https://edge.example.com");
     assert.equal(configCall.args[0].isDebug, true);
+    assert.equal(configCall.args[0].autoTrackSessions, false);
+    assert.equal(configCall.args[0].autoRefreshAttribution, false);
   } finally {
     ctx.restore();
   }
@@ -247,6 +254,27 @@ test("getAttribution returns value from native module", async () => {
 
   try {
     const result = await ctx.sdk.AppSprint.getAttribution();
+    assert.deepEqual(result, attr);
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("refreshAttribution returns updated native attribution", async () => {
+  const attr = {
+    isAttributed: true,
+    source: "apple_ads",
+    matchType: "apple_ads",
+    appleAds: { campaignId: "123" },
+  };
+  const ctx = createSdkTestContext({
+    resolvedValues: { refreshAttribution: attr },
+  });
+
+  try {
+    const result = await ctx.sdk.AppSprint.refreshAttribution();
+    const call = ctx.calls.find((c) => c.method === "refreshAttribution");
+    assert.ok(call);
     assert.deepEqual(result, attr);
   } finally {
     ctx.restore();

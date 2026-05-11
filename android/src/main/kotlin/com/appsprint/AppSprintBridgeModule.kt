@@ -73,6 +73,8 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
                 isDebug = if (config.hasKey("isDebug")) config.getBoolean("isDebug") else false,
                 logLevel = if (config.hasKey("logLevel")) config.getInt("logLevel") else if (config.hasKey("isDebug") && config.getBoolean("isDebug")) 0 else 2,
                 customerUserId = if (config.hasKey("customerUserId")) config.getString("customerUserId") else null,
+                autoTrackSessions = if (config.hasKey("autoTrackSessions")) config.getBoolean("autoTrackSessions") else true,
+                autoRefreshAttribution = if (config.hasKey("autoRefreshAttribution")) config.getBoolean("autoRefreshAttribution") else true,
             )
             sdk().configure(sdkConfig)
             promise.resolve(true)
@@ -124,6 +126,13 @@ class AppSprintBridgeModule(reactContext: ReactApplicationContext) : ReactContex
         runAsync("SET_USER_ID_ERROR", promise) {
             sdk().setCustomerUserId(userId)
             promise.resolve(null)
+        }
+    }
+
+    @ReactMethod
+    fun refreshAttribution(promise: Promise) {
+        runAsync("REFRESH_ATTRIBUTION_ERROR", promise) {
+            promise.resolve(sdk().refreshAttribution()?.let { attributionToMap(it) })
         }
     }
 

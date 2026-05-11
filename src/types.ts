@@ -6,6 +6,8 @@ export interface AppSprintConfig {
   isDebug?: boolean;
   logLevel?: 0 | 1 | 2 | 3; // 0=DEBUG, 1=INFO, 2=WARN, 3=ERROR
   customerUserId?: string | null;
+  autoTrackSessions?: boolean;
+  autoRefreshAttribution?: boolean;
 }
 
 export type AppSprintOptions = Omit<AppSprintConfig, "apiKey">;
@@ -134,6 +136,7 @@ export interface NativeAppSprintModule {
   flush(): Promise<void>;
   clearData(): Promise<void>;
   setCustomerUserId(userId: string): Promise<void>;
+  refreshAttribution(): Promise<AttributionResult | null>;
   enableAppleAdsAttribution(): Promise<boolean>;
   getAppSprintId(): Promise<string | null>;
   getAttribution(): Promise<AttributionResult | null>;

@@ -6,6 +6,7 @@ declare class AppSprintSDK {
     flush(): Promise<void>;
     clearData(): Promise<void>;
     setCustomerUserId(userId: string): Promise<void>;
+    refreshAttribution(): Promise<AttributionResult | null>;
     enableAppleAdsAttribution(): Promise<boolean>;
     getAppSprintId(): Promise<string | null>;
     getAttribution(): Promise<AttributionResult | null>;

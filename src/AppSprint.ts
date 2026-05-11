@@ -113,6 +113,10 @@ class AppSprintSDK {
     await NativeAppSprint.setCustomerUserId(userId);
   }
 
+  async refreshAttribution(): Promise<AttributionResult | null> {
+    return NativeAppSprint.refreshAttribution();
+  }
+
   async enableAppleAdsAttribution(): Promise<boolean> {
     return NativeAppSprint.enableAppleAdsAttribution();
   }

@@ -18,6 +18,9 @@ const unsupportedPlatformModule: NativeAppSprintModule = {
   async flush() {},
   async clearData() {},
   async setCustomerUserId() {},
+  async refreshAttribution() {
+    return null;
+  },
   async enableAppleAdsAttribution() {
     return false;
   },

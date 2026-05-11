@@ -57,6 +57,7 @@ test("android permissions are packaged for consumers", () => {
 test("android wrapper declares local AAR runtime dependencies", () => {
   const gradle = fs.readFileSync(path.join(projectRoot, "android/build.gradle"), "utf8");
 
-  assert.match(gradle, /play-services-ads-identifier:18\.0\.1/);
+  assert.match(gradle, /lifecycle-process:2\.10\.0/);
+  assert.match(gradle, /play-services-ads-identifier:18\.3\.0/);
   assert.match(gradle, /installreferrer:installreferrer:2\.2/);
 });
