@@ -1,0 +1,63 @@
+"use strict";
+
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const projectRoot = path.resolve(__dirname, "..");
+const packageJson = require(path.join(projectRoot, "package.json"));
+
+test("required binary artifacts are present", () => {
+  const requiredPaths = [
+    "android/libs/appsprint-sdk.aar",
+    "ios/AppSprintSDK.xcframework/ios-arm64/AppSprintSDK.framework/AppSprintSDK",
+    "ios/AppSprintSDK.xcframework/ios-arm64_x86_64-simulator/AppSprintSDK.framework/AppSprintSDK",
+    "app.plugin.js",
+    "plugin/build/index.js",
+  ];
+
+  for (const relativePath of requiredPaths) {
+    assert.equal(
+      fs.existsSync(path.join(projectRoot, relativePath)),
+      true,
+      `${relativePath} should exist`
+    );
+  }
+});
+
+test("package metadata reflects the binary-backed distribution contract", () => {
+  assert.equal(packageJson["react-native"], "src/index.ts");
+  assert.equal(packageJson.source, "src/index.ts");
+  assert.equal(packageJson.files.includes("app.plugin.js"), true);
+  assert.equal(packageJson.files.includes("src"), true);
+  assert.equal(packageJson.files.includes("lib"), true);
+  assert.equal(packageJson.files.includes("!lib/**/*.map"), true);
+  assert.deepEqual(packageJson.expo?.plugins, ["./app.plugin.js"]);
+});
+
+test("android permissions are packaged for consumers", () => {
+  const manifest = fs.readFileSync(
+    path.join(projectRoot, "android/src/main/AndroidManifest.xml"),
+    "utf8"
+  );
+  const plugin = fs.readFileSync(
+    path.join(projectRoot, "plugin/build/index.js"),
+    "utf8"
+  );
+
+  assert.match(manifest, /android\.permission\.INTERNET/);
+  assert.match(plugin, /android\.permission\.INTERNET/);
+  assert.match(manifest, /com\.google\.android\.gms\.permission\.AD_ID/);
+  assert.match(plugin, /com\.google\.android\.gms\.permission\.AD_ID/);
+
+  assert.match(plugin, /withAndroidManifest/);
+});
+
+test("android wrapper declares local AAR runtime dependencies", () => {
+  const gradle = fs.readFileSync(path.join(projectRoot, "android/build.gradle"), "utf8");
+
+  assert.match(gradle, /lifecycle-process:2\.10\.0/);
+  assert.match(gradle, /play-services-ads-identifier:18\.3\.0/);
+  assert.match(gradle, /installreferrer:installreferrer:2\.2/);
+});

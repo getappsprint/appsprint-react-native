@@ -1,0 +1,252 @@
+import Foundation
+import React
+import AppSprintSDK
+
+@objc(AppSprintModule)
+class AppSprintBridge: NSObject {
+
+  @objc static func requiresMainQueueSetup() -> Bool { return false }
+
+  // MARK: - Core SDK
+
+  @objc func configure(_ config: NSDictionary,
+                       resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
+    let apiKey = (config["apiKey"] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    guard !apiKey.isEmpty else {
+      reject("CONFIGURE_ERROR", "AppSprint.configure requires a non-empty apiKey.", nil)
+      return
+    }
+
+    Task { @MainActor in
+      let apiUrl = (config["apiUrl"] as? String) ?? (config["endpointBaseUrl"] as? String)
+      let enableAppleAds = config["enableAppleAdsAttribution"] as? Bool ?? true
+      let isDebug = config["isDebug"] as? Bool ?? false
+      let logLevelRaw = config["logLevel"] as? Int
+      let customerUserId = config["customerUserId"] as? String
+      let autoTrackSessions = config["autoTrackSessions"] as? Bool ?? true
+      let autoRefreshAttribution = config["autoRefreshAttribution"] as? Bool ?? true
+
+      let logLevel: AppSprintLogLevel
+      if let raw = logLevelRaw, let level = AppSprintLogLevel(rawValue: raw) {
+        logLevel = level
+      } else {
+        logLevel = isDebug ? .debug : .warn
+      }
+
+      var sdkConfig = AppSprintConfig(
+        apiKey: apiKey,
+        enableAppleAdsAttribution: enableAppleAds,
+        isDebug: isDebug,
+        logLevel: logLevel,
+        customerUserId: customerUserId,
+        autoTrackSessions: autoTrackSessions,
+        autoRefreshAttribution: autoRefreshAttribution
+      )
+
+      if let urlString = apiUrl, let url = URL(string: urlString) {
+        sdkConfig = AppSprintConfig(
+          apiKey: apiKey,
+          apiURL: url,
+          enableAppleAdsAttribution: enableAppleAds,
+          isDebug: isDebug,
+          logLevel: logLevel,
+          customerUserId: customerUserId,
+          autoTrackSessions: autoTrackSessions,
+          autoRefreshAttribution: autoRefreshAttribution
+        )
+      }
+
+      await AppSprint.shared.configure(sdkConfig)
+      resolve(true)
+    }
+  }
+
+  @objc func sendEvent(_ eventType: String,
+                       name: String?,
+                       revenue: NSNumber?,
+                       currency: String?,
+                       parameters: NSDictionary?,
+                       resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      let type = AppSprintEventType(rawValue: eventType) ?? .custom
+
+      var params: [String: Any]? = nil
+      if let parameters = parameters as? [String: Any] {
+        params = parameters
+      }
+      if let rev = revenue?.doubleValue {
+        if params == nil { params = [:] }
+        params?["revenue"] = rev
+      }
+      if let cur = currency {
+        if params == nil { params = [:] }
+        params?["currency"] = cur
+      }
+
+      await AppSprint.shared.sendEvent(type, name: name, params: params)
+      resolve(true)
+    }
+  }
+
+  @objc func sendTestEvent(_ resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      let result = await AppSprint.shared.sendTestEvent()
+      resolve(["success": result.success, "message": result.message])
+    }
+  }
+
+  @objc func flush(_ resolve: @escaping RCTPromiseResolveBlock,
+                   rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      await AppSprint.shared.flush()
+      resolve(nil)
+    }
+  }
+
+  @objc func clearData(_ resolve: @escaping RCTPromiseResolveBlock,
+                       rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      AppSprint.shared.clearData()
+      resolve(nil)
+    }
+  }
+
+  @objc func setCustomerUserId(_ userId: String,
+                                resolve: @escaping RCTPromiseResolveBlock,
+                                rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      await AppSprint.shared.setCustomerUserId(userId)
+      resolve(nil)
+    }
+  }
+
+  @objc func refreshAttribution(_ resolve: @escaping RCTPromiseResolveBlock,
+                                 rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      guard let attr = await AppSprint.shared.refreshAttribution() else {
+        resolve(NSNull())
+        return
+      }
+      resolve(Self.attributionToDictionary(attr))
+    }
+  }
+
+  @objc func enableAppleAdsAttribution(_ resolve: @escaping RCTPromiseResolveBlock,
+                                        rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(AppSprint.shared.enableAppleAdsAttribution())
+    }
+  }
+
+  @objc func getAppSprintId(_ resolve: @escaping RCTPromiseResolveBlock,
+                            rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      let id = AppSprint.shared.getAppSprintId()
+      resolve(id as Any)
+    }
+  }
+
+  @objc func getAttribution(_ resolve: @escaping RCTPromiseResolveBlock,
+                            rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      guard let attr = AppSprint.shared.getAttribution() else {
+        resolve(NSNull())
+        return
+      }
+      resolve(Self.attributionToDictionary(attr))
+    }
+  }
+
+  @objc func getAttributionParams(_ resolve: @escaping RCTPromiseResolveBlock,
+                                  rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(AppSprint.shared.getAttributionParams())
+    }
+  }
+
+  @objc func isInitialized(_ resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(AppSprint.shared.isInitialized)
+    }
+  }
+
+  @objc func isSdkDisabled(_ resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      resolve(AppSprint.shared.isSdkDisabled())
+    }
+  }
+
+  @objc func destroy(_ resolve: @escaping RCTPromiseResolveBlock,
+                     rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      AppSprint.shared.destroy()
+      resolve(nil)
+    }
+  }
+
+  // MARK: - Utility (device info, ATT)
+
+  @objc func getDeviceInfo(_ resolve: @escaping RCTPromiseResolveBlock,
+                           rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task { @MainActor in
+      let info = AppSprintNative.getDeviceInfo()
+      var dict: [String: Any] = [:]
+      if let m = info.deviceModel { dict["deviceModel"] = m }
+      if let w = info.screenWidth { dict["screenWidth"] = w }
+      if let h = info.screenHeight { dict["screenHeight"] = h }
+      if let l = info.locale { dict["locale"] = l }
+      if let t = info.timezone { dict["timezone"] = t }
+      if let o = info.osVersion { dict["osVersion"] = o }
+      if let v = info.idfv { dict["idfv"] = v }
+      if let a = info.idfa { dict["idfa"] = a }
+      if let token = info.adServicesToken { dict["adServicesToken"] = token }
+      resolve(dict)
+    }
+  }
+
+  @objc func getAdServicesToken(_ resolve: @escaping RCTPromiseResolveBlock,
+                                rejecter reject: @escaping RCTPromiseRejectBlock) {
+    let token = AppSprintNative.getAdServicesToken()
+    resolve(token as Any)
+  }
+
+  @objc func requestTrackingAuthorization(_ resolve: @escaping RCTPromiseResolveBlock,
+                                          rejecter reject: @escaping RCTPromiseRejectBlock) {
+    Task {
+      let authorized = await AppSprintNative.requestTrackingAuthorization()
+      resolve(authorized)
+    }
+  }
+
+  private static func attributionToDictionary(_ attr: AttributionResult) -> [String: Any] {
+    var dict: [String: Any] = [
+      "isAttributed": attr.isAttributed,
+      "source": attr.source,
+      "confidence": attr.confidence,
+    ]
+    if let matchType = attr.matchType { dict["matchType"] = matchType }
+    if let campaignName = attr.campaignName { dict["campaignName"] = campaignName }
+    if let link = attr.link {
+      dict["link"] = ["id": link.id, "name": link.name]
+    }
+    if let appleAds = attr.appleAds {
+      var apple: [String: Any] = ["campaignId": appleAds.campaignId]
+      if let adGroupId = appleAds.adGroupId { apple["adGroupId"] = adGroupId }
+      if let keywordId = appleAds.keywordId { apple["keywordId"] = keywordId }
+      if let country = appleAds.countryOrRegion { apple["countryOrRegion"] = country }
+      if let conversion = appleAds.conversionType { apple["conversionType"] = conversion }
+      dict["appleAds"] = apple
+    }
+    if let utmSource = attr.utmSource { dict["utmSource"] = utmSource }
+    if let utmMedium = attr.utmMedium { dict["utmMedium"] = utmMedium }
+    if let utmCampaign = attr.utmCampaign { dict["utmCampaign"] = utmCampaign }
+    if let utmContent = attr.utmContent { dict["utmContent"] = utmContent }
+    if let utmTerm = attr.utmTerm { dict["utmTerm"] = utmTerm }
+    return dict
+  }
+}
