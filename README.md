@@ -12,16 +12,14 @@ Mobile attribution and event tracking for React Native, with native iOS and Andr
 ## Install
 
 ```bash
-npm install getappsprint/appsprint-react-native#v1.0.2
+npm install appsprint-react-native
 ```
 
 or
 
 ```bash
-yarn add getappsprint/appsprint-react-native#v1.0.2
+yarn add appsprint-react-native
 ```
-
-The npm package name is reserved for the public release. Until npm publishing is unblocked, install from the GitHub tag above.
 
 ### iOS
 

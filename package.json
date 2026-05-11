@@ -1,6 +1,6 @@
 {
   "name": "appsprint-react-native",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "AppSprint mobile attribution SDK for React Native",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -30,7 +30,10 @@
     "prepack": "npm run validate:release"
   },
   "keywords": ["react-native", "attribution", "mobile", "analytics", "appsprint"],
-  "repository": "https://github.com/getappsprint/appsprint-react-native",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getappsprint/appsprint-react-native.git"
+  },
   "author": "AppSprint",
   "license": "MIT",
   "homepage": "https://appsprint.app",
