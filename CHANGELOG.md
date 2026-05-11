@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full Apple Ads attribution fields exposed through the bridge.
 
 ### Fixed
-- Updated vendored native binaries with Android v1.0.1 and rebuilt iOS XCFramework.
+- Updated vendored native binaries with iOS v1.0.1 and Android v1.0.2.
 - Completed `getDeviceInfo()` parity for app version, GAID, IDFV/IDFA, AdServices token, and ATT status where platform-available.
 - Replaced per-call Android bridge threads with a bounded bridge executor.
 - Pointed temporary install instructions at the GitHub `v1.0.1` tag while npm publishing is blocked.
