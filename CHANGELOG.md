@@ -15,8 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 1.0.2 - 2026-05-11
 
 ### Changed
-- Release workflow now treats GitHub tags as the temporary distribution path while npm publishing is blocked.
-- Temporary install instructions now point to the GitHub `v1.0.2` tag.
+- Release workflow temporarily treated GitHub tags as the distribution path before npm publishing was enabled in 1.0.3.
+- Temporary install instructions pointed to the GitHub `v1.0.2` tag.
 
 ## 1.0.1 - 2026-05-11
 
@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated vendored native binaries with iOS v1.0.1 and Android v1.0.2.
 - Completed `getDeviceInfo()` parity for app version, GAID, IDFV/IDFA, AdServices token, and ATT status where platform-available.
 - Replaced per-call Android bridge threads with a bounded bridge executor.
-- Pointed temporary install instructions at the GitHub `v1.0.1` tag while npm publishing is blocked.
+- Pointed temporary install instructions at the GitHub `v1.0.1` tag before npm publishing was enabled.
 
 ## 1.0.0 - 2026-05-11
 
