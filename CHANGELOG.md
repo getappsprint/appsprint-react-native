@@ -5,21 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.3 - 2026-05-17
+
+### Changed
+- Simplified public release notes for the latest iOS attribution update.
+
 ## 1.1.2 - 2026-05-17
 
 ### Fixed
-- Declared the iOS system frameworks required by the vendored AppSprintSDK binary in the CocoaPods podspec.
+- Tightened iOS CocoaPods metadata for the vendored AppSprintSDK binary.
 
 ## 1.1.1 - 2026-05-17
 
 ### Added
-- Updated the vendored iOS SDK to v1.1.1 so React Native apps receive iOS connection and cellular radio metadata in install attribution payloads.
+- Updated the vendored iOS SDK to v1.1.1 with reliability improvements for iOS attribution payloads.
 
 ## 1.1.0 - 2026-05-17
 
 ### Added
 - Updated vendored native SDKs to iOS v1.1.0 and Android v1.1.0.
-- Exposed enriched `getDeviceInfo()` fields including native screen size, screen scale, CPU count, memory bucket, preferred languages, timezone offset, battery/network/carrier metadata, GPU renderer, and SDK version where platform-available.
+- Exposed additional platform-safe `getDeviceInfo()` fields for attribution quality and rollout debugging.
 
 ## 1.0.4 - 2026-05-12
 
