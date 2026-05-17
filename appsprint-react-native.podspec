@@ -24,5 +24,5 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
 
   s.ios.vendored_frameworks = "ios/AppSprintSDK.xcframework"
-  s.frameworks = "AdServices", "AppTrackingTransparency", "AdSupport"
+  s.frameworks = "Foundation", "UIKit", "CoreTelephony", "Metal", "CoreGraphics", "CryptoKit", "AdServices", "AppTrackingTransparency", "AdSupport"
 end
