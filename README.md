@@ -2,6 +2,8 @@
 
 Mobile attribution and event tracking for React Native, with native iOS and Android SDKs bundled inside. Works with bare React Native and Expo. The JS bridge is thin: it forwards calls to the same native engines as our standalone iOS and Android SDKs.
 
+NPM package: https://www.npmjs.com/package/appsprint-react-native
+
 ## Requirements
 
 - React Native 0.71 or later
