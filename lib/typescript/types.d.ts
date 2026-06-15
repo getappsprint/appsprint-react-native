@@ -8,6 +8,7 @@ export interface AppSprintConfig {
     customerUserId?: string | null;
     autoTrackSessions?: boolean;
     autoRefreshAttribution?: boolean;
+    eventTrackingEnabled?: boolean;
     googleAdsConsent?: GoogleAdsConsent | null;
 }
 export type AppSprintOptions = Omit<AppSprintConfig, "apiKey">;

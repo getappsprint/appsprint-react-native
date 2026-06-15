@@ -10,6 +10,7 @@ test("exports the documented public API", async () => {
 
   try {
     assert.ok(ctx.sdk.AppSprint);
+    assert.ok(ctx.sdk.AppSprintAppleAds);
     assert.ok(ctx.sdk.NativeAppSprint);
     assert.equal(typeof ctx.sdk.AppSprint.configure, "function");
     assert.equal(typeof ctx.sdk.AppSprint.sendEvent, "function");
@@ -24,12 +25,85 @@ test("exports the documented public API", async () => {
     assert.equal(typeof ctx.sdk.AppSprint.isInitialized, "function");
     assert.equal(typeof ctx.sdk.AppSprint.isSdkDisabled, "function");
     assert.equal(typeof ctx.sdk.AppSprint.destroy, "function");
+    assert.equal(typeof ctx.sdk.AppSprintAppleAds.configure, "function");
+    assert.equal(typeof ctx.sdk.AppSprintAppleAds.getAppSprintId, "function");
+    assert.equal(typeof ctx.sdk.AppSprintAppleAds.getAttribution, "function");
+    assert.equal(typeof ctx.sdk.AppSprintAppleAds.getAttributionParams, "function");
+    assert.equal(typeof ctx.sdk.AppSprintAppleAds.refreshAttribution, "function");
     assert.equal(typeof ctx.sdk.NativeAppSprint.getDeviceInfo, "function");
     assert.equal(typeof ctx.sdk.NativeAppSprint.getWebViewUserAgent, "function");
     assert.equal(typeof ctx.sdk.NativeAppSprint.requestTrackingAuthorization, "function");
     assert.equal("storageSet" in ctx.sdk.NativeAppSprint, false);
     assert.equal("storageGet" in ctx.sdk.NativeAppSprint, false);
     assert.equal("storageRemove" in ctx.sdk.NativeAppSprint, false);
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("Apple Ads facade delegates locked iOS config", async () => {
+  const ctx = createSdkTestContext();
+
+  try {
+    const configured = await ctx.sdk.AppSprintAppleAds.configure({
+      apiKey: "as_ios_live_test",
+      apiUrl: "https://edge.example.com",
+      isDebug: true,
+    });
+
+    const configCall = ctx.calls.find((c) => c.method === "configure");
+    assert.ok(configCall, "configure was called on native module");
+    assert.equal(configured, true);
+    assert.deepEqual(configCall.args[0], {
+      apiKey: "as_ios_live_test",
+      apiUrl: "https://edge.example.com",
+      enableAppleAdsAttribution: true,
+      isDebug: true,
+      customerUserId: null,
+      autoTrackSessions: false,
+      autoRefreshAttribution: false,
+      eventTrackingEnabled: false,
+    });
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("Apple Ads facade rejects Android clearly", async () => {
+  const ctx = createSdkTestContext({ platform: "android" });
+
+  try {
+    await assert.rejects(
+      () => ctx.sdk.AppSprintAppleAds.configure({ apiKey: "as_ios_live_test" }),
+      /only supported on iOS/,
+    );
+    assert.equal(ctx.calls.length, 0);
+  } finally {
+    ctx.restore();
+  }
+});
+
+test("Apple Ads facade rejects every Android helper clearly", async () => {
+  const ctx = createSdkTestContext({ platform: "android" });
+
+  try {
+    await assert.rejects(
+      () => ctx.sdk.AppSprintAppleAds.getAppSprintId(),
+      /only supported on iOS/,
+    );
+    await assert.rejects(
+      () => ctx.sdk.AppSprintAppleAds.getAttributionParams(),
+      /only supported on iOS/,
+    );
+    await assert.rejects(
+      () => ctx.sdk.AppSprintAppleAds.getAttribution(),
+      /only supported on iOS/,
+    );
+    await assert.rejects(
+      () => ctx.sdk.AppSprintAppleAds.refreshAttribution(),
+      /only supported on iOS/,
+    );
+    assert.equal(ctx.calls.length, 0);
   } finally {
     ctx.restore();
   }

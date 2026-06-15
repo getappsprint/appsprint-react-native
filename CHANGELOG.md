@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.10 - 2026-06-15
+
+### Added
+- Adds `AppSprintAppleAds`, an iOS-only Apple Ads ROAS facade that configures the native SDK with Apple Ads attribution enabled and event/session tracking disabled.
+- Throws a clear unsupported-platform error when the Apple Ads facade is called on Android.
+
+### Changed
+- Updates the vendored iOS SDK to v1.1.8.
+
 ## 1.1.9 - 2026-05-21
 
 ### Fixed

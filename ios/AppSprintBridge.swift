@@ -26,6 +26,7 @@ class AppSprintBridge: NSObject {
       let customerUserId = config["customerUserId"] as? String
       let autoTrackSessions = config["autoTrackSessions"] as? Bool ?? true
       let autoRefreshAttribution = config["autoRefreshAttribution"] as? Bool ?? true
+      let eventTrackingEnabled = config["eventTrackingEnabled"] as? Bool ?? true
       let googleAdsConsent = Self.googleAdsConsent(from: config["googleAdsConsent"])
 
       let logLevel: AppSprintLogLevel
@@ -43,6 +44,7 @@ class AppSprintBridge: NSObject {
         customerUserId: customerUserId,
         autoTrackSessions: autoTrackSessions,
         autoRefreshAttribution: autoRefreshAttribution,
+        eventTrackingEnabled: eventTrackingEnabled,
         googleAdsConsent: googleAdsConsent
       )
 
@@ -56,6 +58,7 @@ class AppSprintBridge: NSObject {
           customerUserId: customerUserId,
           autoTrackSessions: autoTrackSessions,
           autoRefreshAttribution: autoRefreshAttribution,
+          eventTrackingEnabled: eventTrackingEnabled,
           googleAdsConsent: googleAdsConsent
         )
       }

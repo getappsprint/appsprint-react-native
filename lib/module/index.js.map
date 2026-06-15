@@ -1,1 +1,1 @@
-{"version":3,"names":["AppSprint","NativeAppSprint"],"sourceRoot":"../../src","sources":["index.ts"],"mappings":";;AAAA,SAASA,SAAS,QAAQ,aAAa;AACvC,SAASC,eAAe,QAAQ,mBAAmB","ignoreList":[]}
+{"version":3,"names":["AppSprint","AppSprintAppleAds","NativeAppSprint"],"sourceRoot":"../../src","sources":["index.ts"],"mappings":";;AAAA,SAASA,SAAS,QAAQ,aAAa;AACvC,SAASC,iBAAiB,QAAQ,qBAAqB;AACvD,SAASC,eAAe,QAAQ,mBAAmB","ignoreList":[]}
