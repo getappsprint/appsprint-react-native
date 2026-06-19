@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.11 - 2026-06-19
+
+### Changed
+- Updates the vendored native SDKs to iOS v1.1.9 and Android v1.1.3 so attribution params use `appsprintId` only.
+- Removes legacy competitor-name fixtures from SDK tests and comments.
+
 ## 1.1.10 - 2026-06-15
 
 ### Added
