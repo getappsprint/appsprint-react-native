@@ -157,20 +157,21 @@ Once an install registers, attribution is cached on the native side. You can rea
 ```tsx
 const attribution = await AppSprint.getAttribution();
 const appsprintId = await AppSprint.getAppSprintId();
-const params = await AppSprint.getAttributionParams();
 ```
 
 `AttributionResult.source` is one of `apple_ads`, `tracking_link`, or `organic`.
 
-### Forward to RevenueCat or Superwall
+### Link RevenueCat or Superwall
 
-`getAttributionParams()` returns a flat `Record<string, string>` shaped for partner SDKs:
+For revenue webhooks, set only the `appsprintId` subscriber/user attribute. Do not forward the full `getAttributionParams()` map to RevenueCat; it contains attribution details such as `source` and `isAttributed` for diagnostics and custom integrations.
 
 ```tsx
 import Purchases from "react-native-purchases";
 
-const params = await AppSprint.getAttributionParams();
-Purchases.setAttributes(params);
+const appsprintId = await AppSprint.getAppSprintId();
+if (appsprintId) {
+  await Purchases.setAttributes({ appsprintId });
+}
 ```
 
 ### Manual refresh
@@ -252,7 +253,7 @@ import { AppSprint } from "appsprint-react-native";
 - `refreshAttribution()` fetches the latest attribution from the backend.
 - `setCustomerUserId(userId)` updates the customer user ID.
 - `getAttribution()` returns the cached attribution.
-- `getAttributionParams()` returns the partner-ready payload.
+- `getAttributionParams()` returns a flat attribution/debug payload for custom integrations.
 - `getAppSprintId()` returns the SDK install identifier.
 - `enableAppleAdsAttribution()` re-enables Apple Ads at runtime on iOS; returns `false` on Android.
 - `sendTestEvent()` posts a diagnostic event and resolves to `{ success, message }`.
