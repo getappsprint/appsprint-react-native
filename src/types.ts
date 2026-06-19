@@ -1,7 +1,7 @@
 export interface AppSprintConfig {
   apiKey: string;
   apiUrl?: string; // defaults to https://api.appsprint.app
-  endpointBaseUrl?: string; // Appstack-compatible alias for apiUrl
+  endpointBaseUrl?: string; // alias for apiUrl
   enableAppleAdsAttribution?: boolean;
   isDebug?: boolean;
   logLevel?: 0 | 1 | 2 | 3; // 0=DEBUG, 1=INFO, 2=WARN, 3=ERROR

@@ -148,7 +148,7 @@ test("configure delegates to native module", async () => {
   }
 });
 
-test("configure accepts Appstack-style apiKey and options", async () => {
+test("configure accepts apiKey overload and endpointBaseUrl options", async () => {
   const ctx = createSdkTestContext();
 
   try {
@@ -219,7 +219,7 @@ test("sendEvent accepts price as revenue fallback", async () => {
   }
 });
 
-test("sendEvent supports Appstack parity event names", async () => {
+test("sendEvent supports alternate event name spellings", async () => {
   const ctx = createSdkTestContext();
 
   try {
@@ -382,7 +382,6 @@ test("refreshAttribution returns updated native attribution", async () => {
 test("getAttributionParams returns partner payload from native module", async () => {
   const params = {
     appsprintId: "app_123",
-    appstackId: "app_123",
     gclid: "gclid_123",
   };
   const ctx = createSdkTestContext({
