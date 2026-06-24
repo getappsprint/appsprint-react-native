@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.12 - 2026-06-24
+
+### Fixed
+- Updates the vendored Android SDK to v1.1.4 so optional cellular-network subtype probes cannot crash startup on newer Android versions that deny telephony access.
+
 ## 1.1.11 - 2026-06-19
 
 ### Changed

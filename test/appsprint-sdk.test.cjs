@@ -418,7 +418,7 @@ test("getDeviceInfo returns enriched native connection fields", async () => {
     connectionType: "cellular",
     networkType: "5g",
     colorScheme: "dark",
-    sdkVersion: "1.1.3",
+    sdkVersion: "1.1.4",
   };
   const ctx = createSdkTestContext({
     resolvedValues: { getDeviceInfo: deviceInfo },
