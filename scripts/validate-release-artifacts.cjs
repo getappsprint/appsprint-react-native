@@ -8,7 +8,9 @@ const projectRoot = path.resolve(__dirname, "..");
 const requiredPaths = [
   "android/libs/appsprint-sdk.aar",
   "ios/AppSprintSDK.xcframework/ios-arm64/AppSprintSDK.framework/AppSprintSDK",
+  "ios/AppSprintSDK.xcframework/ios-arm64/dSYMs/AppSprintSDK.framework.dSYM/Contents/Resources/DWARF/AppSprintSDK",
   "ios/AppSprintSDK.xcframework/ios-arm64_x86_64-simulator/AppSprintSDK.framework/AppSprintSDK",
+  "ios/AppSprintSDK.xcframework/ios-arm64_x86_64-simulator/dSYMs/AppSprintSDK.framework.dSYM/Contents/Resources/DWARF/AppSprintSDK",
   "app.plugin.js",
   "plugin/build/index.js",
 ];
